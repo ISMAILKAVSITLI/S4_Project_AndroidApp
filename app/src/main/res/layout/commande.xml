@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blue">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar2"
+        android:layout_width="418dp"
+        android:layout_height="62dp"
+        android:background="@color/bleufonce"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/button13"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button_commande"
+            android:text="Entrée"
+            android:textColor="#000000"
+            app:backgroundTint="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.089" />
+
+        <Button
+            android:id="@+id/button14"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button_commande"
+            android:text="Plat"
+            android:textColor="#000000"
+            app:backgroundTint="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button13"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.089" />
+
+        <Button
+            android:id="@+id/button15"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button_commande"
+            android:text="Dessert"
+            android:textColor="#000000"
+            app:backgroundTint="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button14"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.089" />
+
+        <Button
+            android:id="@+id/button16"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button_commande"
+            android:text="Boisson"
+            android:textColor="#000000"
+            app:backgroundTint="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button15"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.088" />
+    </LinearLayout>
+
+
+
+    <Button
+        android:id="@+id/button11"
+        android:layout_width="94dp"
+        android:layout_height="42dp"
+        android:background="@drawable/rounded_button_commande_retour"
+        android:text="Retour"
+        android:textColor="#000000"
+        app:backgroundTint="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.047"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.01" />
+
+    <Button
+        android:id="@+id/button12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button_commande"
+        android:text="Résumé"
+        android:textColor="#000000"
+        app:backgroundTint="@null"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar2"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar2"
+        app:layout_constraintHorizontal_bias="0.903"
+        app:layout_constraintStart_toEndOf="@+id/button11"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="409dp"
+        android:layout_height="618dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
