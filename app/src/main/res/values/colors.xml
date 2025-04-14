@@ -6,4 +6,7 @@
     <color name="grey">#D9D9D9</color>
     <color name="bleufonce">#00353F</color>
     <color name="marron">#430C05</color>
+    <color name="red">#FF0000</color>
+    <color name="green">#00FF00</color>
+    <color name="orange">#FF8400</color>
 </resources>
