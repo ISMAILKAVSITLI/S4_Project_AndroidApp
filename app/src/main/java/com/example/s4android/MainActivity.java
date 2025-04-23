@@ -8,7 +8,6 @@ import android.util.Log;
 import java.sql.Connection;
 import java.util.List;
 
-
 public class MainActivity extends AppCompatActivity {
 
     public Database database;
@@ -45,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Statut", s.toString());
             }
         }
-
-
     }
     private void ouvrirTables(int secteur) {
         Intent intent = new Intent(this, GestionTable.class);
@@ -54,7 +51,5 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
-
-
 }
+

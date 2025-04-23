@@ -11,13 +11,10 @@ import android.util.Log;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-import javax.xml.transform.sax.SAXResult;
-
-
 public class Database {
 
-    private static final String URL = "jdbc:mysql://100.73.248.3:3306/s4";
-    private static final String USER = "root";
+    private static final String URL = "jdbc:mysql://192.168.155.63:3306/nouveaus4";
+    private static final String USER = "arno";
     private static final String PASSWORD = "root";
 
     public Connection connectDB() {
@@ -59,6 +56,64 @@ public class Database {
         }
         return statuts;
     }
+
+    public Reservation getReservationForTable(Connection conn, int idTable) {
+        Reservation reservation = null;
+        try {
+            String sql = "SELECT NOM_CLIENT, TELEPHONE, DATE_RESERVATION, HORAIRE, NOMBRE_PERSONNE " +
+                    "FROM RESERVATION WHERE ID_TABLES = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idTable);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String nom = rs.getString("NOM_CLIENT");
+                String telephone = rs.getString("TELEPHONE");
+                String date = rs.getString("DATE_RESERVATION");
+                String horaire = rs.getString("HORAIRE");
+                int nbPersonnes = rs.getInt("NOMBRE_PERSONNE");
+
+                reservation = new Reservation(nom, telephone, date, horaire, nbPersonnes);
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return reservation;
+    }
+
+    public List<Reservation> getAllReservationsForTable(Connection conn, int idTable) {
+        List<Reservation> reservations = new ArrayList<>();
+        try {
+            String sql = "SELECT NOM_CLIENT, TELEPHONE, DATE_RESERVATION, HORAIRE, NOMBRE_PERSONNE " +
+                    "FROM RESERVATION WHERE ID_TABLES = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idTable);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String nom = rs.getString("NOM_CLIENT");
+                String telephone = rs.getString("TELEPHONE");
+                String date = rs.getString("DATE_RESERVATION");
+                String horaire = rs.getString("HORAIRE");
+                int nbPersonnes = rs.getInt("NOMBRE_PERSONNE");
+
+                reservations.add(new Reservation(nom, telephone, date, horaire, nbPersonnes));
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return reservations;
+    }
+
+
+
+
 
 
 
