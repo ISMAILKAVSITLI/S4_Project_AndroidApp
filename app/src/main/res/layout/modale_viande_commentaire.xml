@@ -44,15 +44,6 @@
             android:text=""
             app:backgroundTint="@null" />
 
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/rounded_button_modale_viande_commentaire"
-            android:text=""
-            app:backgroundTint="@null" />
-
 
     </LinearLayout>
 
@@ -75,10 +66,9 @@
             app:backgroundTint="@null" />
 
         <Button
-            android:id="@+id/button5"
+            android:id="@+id/button3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginEnd="8dp"
             android:background="@drawable/rounded_button_modale_viande_commentaire"
             android:text=""
@@ -86,6 +76,15 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/rounded_button_modale_viande_commentaire"
+        android:text=""
+        app:backgroundTint="@null" />
 
 
 </LinearLayout>
