@@ -1,20 +1,33 @@
 package com.example.s4android;
 
 
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import android.app.Activity;
+import android.content.Context;
+import android.database.Cursor;
 import android.os.StrictMode;
 import android.util.Log;
+import android.widget.Toast;
+
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Locale;
+
+import javax.xml.transform.sax.SAXResult;
+
 
 public class Database {
 
-    private static final String URL = "jdbc:mysql://192.168.155.63:3306/nouveaus4";
-    private static final String USER = "arno";
+    private static final String URL = "jdbc:mysql://10.0.2.2:3306/nouveaus4";
+    private static final String USER = "root";
     private static final String PASSWORD = "root";
 
     public Connection connectDB() {
@@ -60,20 +73,24 @@ public class Database {
     public Reservation getReservationForTable(Connection conn, int idTable) {
         Reservation reservation = null;
         try {
-            String sql = "SELECT NOM_CLIENT, TELEPHONE, DATE_RESERVATION, HORAIRE, NOMBRE_PERSONNE " +
-                    "FROM RESERVATION WHERE ID_TABLES = ?";
+            String sql = "SELECT ID_RESERVATION, NOM_CLIENT, TELEPHONE, DATE_RESERVATION, HORAIRE, NOMBRE_PERSONNE, ID_TABLES " +
+                    "FROM RESERVATION " +
+                    "JOIN TABLES ON RESERVATION.ID_TABLES = TABLES.ID_TABLES " +
+                    "WHERE RESERVATION.DATE_RESERVATION = CURRENT_DATE" +
+                    "AND RESERVATION.HORAIRE >=CURRENT_TIME";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, idTable);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
+                int id = rs.getInt("ID_RESERVATION");
                 String nom = rs.getString("NOM_CLIENT");
                 String telephone = rs.getString("TELEPHONE");
                 String date = rs.getString("DATE_RESERVATION");
                 String horaire = rs.getString("HORAIRE");
                 int nbPersonnes = rs.getInt("NOMBRE_PERSONNE");
 
-                reservation = new Reservation(nom, telephone, date, horaire, nbPersonnes);
+                reservation = new Reservation(id, nom, telephone, date, horaire, nbPersonnes);
             }
 
             rs.close();
@@ -87,20 +104,21 @@ public class Database {
     public List<Reservation> getAllReservationsForTable(Connection conn, int idTable) {
         List<Reservation> reservations = new ArrayList<>();
         try {
-            String sql = "SELECT NOM_CLIENT, TELEPHONE, DATE_RESERVATION, HORAIRE, NOMBRE_PERSONNE " +
+            String sql = "SELECT ID_RESERVATION, NOM_CLIENT, TELEPHONE, DATE_RESERVATION, HORAIRE, NOMBRE_PERSONNE, ID_TABLES " +
                     "FROM RESERVATION WHERE ID_TABLES = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, idTable);
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
+                int id = rs.getInt("ID_RESERVATION");
                 String nom = rs.getString("NOM_CLIENT");
                 String telephone = rs.getString("TELEPHONE");
                 String date = rs.getString("DATE_RESERVATION");
                 String horaire = rs.getString("HORAIRE");
                 int nbPersonnes = rs.getInt("NOMBRE_PERSONNE");
 
-                reservations.add(new Reservation(nom, telephone, date, horaire, nbPersonnes));
+                reservations.add(new Reservation(id, nom, telephone, date, horaire, nbPersonnes));
             }
 
             rs.close();
@@ -112,9 +130,29 @@ public class Database {
     }
 
 
+    public String getCurrentDateTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        return sdf.format(new Date());
+    }
+
+    public void deleteReservation(Connection conn, int idReservation) {
+        try {
+            Statement stmt = conn.createStatement();
+            String query = "DELETE FROM RESERVATION WHERE ID_RESERVATION = " + idReservation;
+            stmt.executeUpdate(query);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 
 
 
 
 }
+
+
+
+

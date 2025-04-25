@@ -1,12 +1,15 @@
 package com.example.s4android;
 
+
+
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
-import android.widget.Button;
 import android.util.Log;
+import android.widget.Button;
 import java.sql.Connection;
 import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,8 +35,6 @@ public class MainActivity extends AppCompatActivity {
         btnSecteur3.setOnClickListener(view -> ouvrirTables(3));
         btnSecteur4.setOnClickListener(view -> ouvrirTables(4));
 
-//        database = new Database();
-//        database.connectDB();
 
         Database db = new Database();
         Connection conn = db.connectDB();
@@ -50,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("SECTEUR", secteur);
         startActivity(intent);
     }
+
+
+
 
 }
 

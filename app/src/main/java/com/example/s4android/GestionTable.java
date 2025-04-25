@@ -1,17 +1,21 @@
 package com.example.s4android;
 
+
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import java.sql.Connection;
-import java.util.List;
-import android.util.Log;
-import android.content.Intent;
-import android.view.View;
-import androidx.appcompat.app.AlertDialog;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
+import android.util.Log;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -29,38 +33,75 @@ public class GestionTable extends AppCompatActivity {
 
         int secteur = getIntent().getIntExtra("SECTEUR", -1);
 
-        // Initialisation des boutons selon le secteur sélectionné
+        // Initialisation des boutons et des TextViews pour afficher les numéros des tables
         if (secteur == 1) {
             buttons[0] = findViewById(R.id.button3);  // Table 1
             buttons[1] = findViewById(R.id.button5);  // Table 2
             buttons[2] = findViewById(R.id.button7);  // Table 3
             buttons[3] = findViewById(R.id.button8);  // Table 4
             buttons[4] = findViewById(R.id.button10); // Table 5
+
+            // Mettre à jour les TextViews pour afficher les numéros de tables
+            ((TextView) findViewById(R.id.button3)).setText("Table 1");
+            ((TextView) findViewById(R.id.button5)).setText("Table 2");
+            ((TextView) findViewById(R.id.button7)).setText("Table 3");
+            ((TextView) findViewById(R.id.button8)).setText("Table 4");
+            ((TextView) findViewById(R.id.button10)).setText("Table 5");
         } else if (secteur == 2) {
             buttons[0] = findViewById(R.id.button3);  // Table 6
             buttons[1] = findViewById(R.id.button5);  // Table 7
             buttons[2] = findViewById(R.id.button7);  // Table 8
             buttons[3] = findViewById(R.id.button8);  // Table 9
             buttons[4] = findViewById(R.id.button10); // Table 10
+
+            // Mettre à jour les TextViews pour afficher les numéros de tables
+            ((TextView) findViewById(R.id.button3)).setText("Table 6");
+            ((TextView) findViewById(R.id.button5)).setText("Table 7");
+            ((TextView) findViewById(R.id.button7)).setText("Table 8");
+            ((TextView) findViewById(R.id.button8)).setText("Table 9");
+            ((TextView) findViewById(R.id.button10)).setText("Table 10");
         } else if (secteur == 3) {
             buttons[0] = findViewById(R.id.button3);  // Table 11
             buttons[1] = findViewById(R.id.button5);  // Table 12
             buttons[2] = findViewById(R.id.button7);  // Table 13
             buttons[3] = findViewById(R.id.button8);  // Table 14
             buttons[4] = findViewById(R.id.button10); // Table 15
+
+            // Mettre à jour les TextViews pour afficher les numéros de tables
+            ((TextView) findViewById(R.id.button3)).setText("Table 11");
+            ((TextView) findViewById(R.id.button5)).setText("Table 12");
+            ((TextView) findViewById(R.id.button7)).setText("Table 13");
+            ((TextView) findViewById(R.id.button8)).setText("Table 14");
+            ((TextView) findViewById(R.id.button10)).setText("Table 15");
         } else if (secteur == 4) {
             buttons[0] = findViewById(R.id.button3);  // Table 16
             buttons[1] = findViewById(R.id.button5);  // Table 17
             buttons[2] = findViewById(R.id.button7);  // Table 18
             buttons[3] = findViewById(R.id.button8);  // Table 19
             buttons[4] = findViewById(R.id.button10); // Table 20
+
+            // Mettre à jour les TextViews pour afficher les numéros de tables
+            ((TextView) findViewById(R.id.button3)).setText("Table 16");
+            ((TextView) findViewById(R.id.button5)).setText("Table 17");
+            ((TextView) findViewById(R.id.button7)).setText("Table 18");
+            ((TextView) findViewById(R.id.button8)).setText("Table 19");
+            ((TextView) findViewById(R.id.button10)).setText("Table 20");
         }
 
-        // Mise en place des listeners pour les boutons
+//        // Mise en place des listeners pour les boutons
+//        for (int i = 0; i < buttons.length; i++) {
+//            final int tableId = (secteur - 1) * 5 + i + 1;
+//            if (buttons[i] != null) {
+//                buttons[i].setOnClickListener(v -> ouvrirCommande(tableId));
+//            }
+//        }
+
+        // Mise à jour des boutons avec les numéros des tables
         for (int i = 0; i < buttons.length; i++) {
             final int tableId = (secteur - 1) * 5 + i + 1;
             if (buttons[i] != null) {
-                buttons[i].setOnClickListener(v -> ouvrirCommande(tableId));
+                buttons[i].setText("Table " + tableId);  // Ajoute le numéro de la table sur le bouton
+                buttons[i].setOnClickListener(v -> ouvrirCommande(tableId));  // Ajoute l'action pour ouvrir la commande
             }
         }
 
@@ -160,7 +201,6 @@ public class GestionTable extends AppCompatActivity {
         }
     }
 
-
     private void afficherModaleNettoyage(int idTable) {
         View dialogView = getLayoutInflater().inflate(R.layout.modale_a_nettoyer, null);
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -173,18 +213,39 @@ public class GestionTable extends AppCompatActivity {
         btnYes.setOnClickListener(v -> {
             Database db = new Database();
             Connection conn = db.connectDB();
+
             if (conn != null) {
                 new Thread(() -> {
                     try {
+                        // 2. Vérifier les autres réservations futures
+                        List<Reservation> autresReservations = db.getAllReservationsForTable(conn, idTable);
+                        String now = db.getCurrentDateTime();
+
+                        boolean hasFutureReservation = false;
+                        for (Reservation r : autresReservations) {
+                            String fullDateTime = r.getDate() + " " + r.getHoraire();
+                            if (fullDateTime.compareTo(now) > 0) {
+                                hasFutureReservation = true;
+                                break;
+                            }
+                        }
+
+                        // 3. Mise à jour du statut
+                        int newStatus = hasFutureReservation ? 3 : 1; // 3 = réservée, 1 = libre
+                        final String message = hasFutureReservation ?
+                                "La table est de nouveau marquée comme réservée." :
+                                "Table remise en état libre.";
+
                         Statement stmt = conn.createStatement();
-                        // Mettre la table en statut "libre" (ID_STATUT_TABLE = 1)
-                        String update = "UPDATE TABLES SET ID_STATUT_TABLE = 1 WHERE ID_TABLES = " + idTable;
+                        String update = "UPDATE TABLES SET ID_STATUT_TABLE = " + newStatus + " WHERE ID_TABLES = " + idTable;
                         stmt.executeUpdate(update);
+
                         runOnUiThread(() -> {
-                            Toast.makeText(this, "Table remise en état libre", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
-                            recreate(); // Recharge l'activité pour mettre à jour les couleurs
+                            recreate(); // recharge l’activité
                         });
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         runOnUiThread(() -> Toast.makeText(this, "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show());
@@ -194,9 +255,10 @@ public class GestionTable extends AppCompatActivity {
         });
 
         btnNo.setOnClickListener(v -> dialog.dismiss());
-
         dialog.show();
     }
+
+
 
 
 
@@ -289,7 +351,14 @@ public class GestionTable extends AppCompatActivity {
             container.addView(btn);
         }
     }
+
+
 }
+
+
+
+
+
 
 
 

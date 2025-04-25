@@ -1,11 +1,11 @@
 package com.example.s4android;
 
-import android.os.Bundle;
-import android.widget.Button;
 
-import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,6 +55,40 @@ public class Commande extends AppCompatActivity {
         findViewById(R.id.button15).setOnClickListener(v -> chargerMenu("Dessert"));
         findViewById(R.id.button16).setOnClickListener(v -> chargerMenu("Boisson"));
         findViewById(R.id.button12).setOnClickListener(v -> afficherResume());
+
+
+        Button boutonEntree = findViewById(R.id.button13);
+        Button boutonPlat = findViewById(R.id.button14);
+        Button boutonDessert = findViewById(R.id.button15);
+        Button boutonBoisson = findViewById(R.id.button16);
+
+
+
+        // Cache le bouton pour les autres catégories
+        View.OnClickListener hideButtonListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buttonValiderCommande.setVisibility(View.GONE);
+                textViewResume.setVisibility(View.GONE);
+            }
+        };
+
+        boutonEntree.setOnClickListener(v -> {
+            hideButtonListener.onClick(v);
+            chargerMenu("Entrée");
+        });
+        boutonPlat.setOnClickListener(v -> {
+            hideButtonListener.onClick(v);
+            chargerMenu("Plat");
+        });
+        boutonDessert.setOnClickListener(v -> {
+            hideButtonListener.onClick(v);
+            chargerMenu("Dessert");
+        });
+        boutonBoisson.setOnClickListener(v -> {
+            hideButtonListener.onClick(v);
+            chargerMenu("Boisson");
+        });
 
         buttonValiderCommande.setOnClickListener(v -> {
             if (platsCommandes.isEmpty()) {
@@ -147,21 +181,53 @@ public class Commande extends AppCompatActivity {
         this.isResumeMode = isResume;
 
         platAdapter = new PlatAdapter(platItems, new PlatAdapter.OnPlatClickListener() {
+//            @Override
+//            public void onPlatClick(PlatItem clickedItem) {
+//                clickedItem.incrementer();
+//                if (!platsCommandes.contains(clickedItem)) {
+//                    platsCommandes.add(clickedItem);
+//                }
+//
+//                if (clickedItem.getContientSauce()) {
+//                    showModaleSauce(clickedItem, () -> {
+//                        if (clickedItem.getContientViande()) {
+//                            showModaleViande(clickedItem);
+//                        }
+//                    });
+//                } else if (clickedItem.getContientViande()) {
+//                    showModaleViande(clickedItem);
+//                }
+//
+//                if (isResumeMode) {
+//                    afficherResume();
+//                } else {
+//                    platAdapter.notifyDataSetChanged();
+//                }
+//
+//                Toast.makeText(Commande.this, clickedItem.getNom() + " ajouté", Toast.LENGTH_SHORT).show();
+//            }
+
             @Override
             public void onPlatClick(PlatItem clickedItem) {
                 clickedItem.incrementer();
-                if (!platsCommandes.contains(clickedItem)) {
-                    platsCommandes.add(clickedItem);
-                }
+
+                // Créer une copie indépendante du plat sélectionné
+                PlatItem copyItem = new PlatItem(clickedItem.getNom(), clickedItem.getPrix());
+                copyItem.setContientViande(clickedItem.getContientViande());
+                copyItem.setContientSauce(clickedItem.getContientSauce());
+                copyItem.setCompteur(1); // chaque ajout = 1 exemplaire
+                copyItem.setCommentaire(""); // on laisse vide ou on ajoute plus tard
+
+                platsCommandes.add(copyItem);
 
                 if (clickedItem.getContientSauce()) {
-                    showModaleSauce(clickedItem, () -> {
-                        if (clickedItem.getContientViande()) {
-                            showModaleViande(clickedItem);
+                    showModaleSauce(copyItem, () -> {
+                        if (copyItem.getContientViande()) {
+                            showModaleViande(copyItem);
                         }
                     });
-                } else if (clickedItem.getContientViande()) {
-                    showModaleViande(clickedItem);
+                } else if (copyItem.getContientViande()) {
+                    showModaleViande(copyItem);
                 }
 
                 if (isResumeMode) {
@@ -172,6 +238,7 @@ public class Commande extends AppCompatActivity {
 
                 Toast.makeText(Commande.this, clickedItem.getNom() + " ajouté", Toast.LENGTH_SHORT).show();
             }
+
 
             @Override
             public void onPlatSupprime(PlatItem clickedItem) {
@@ -273,19 +340,48 @@ public class Commande extends AppCompatActivity {
         }
     }
 
+//    private void afficherResume() {
+//        textViewResume.setVisibility(View.VISIBLE);
+//        platItems.clear();
+//
+//        for (PlatItem item : platsCommandes) {
+//            if (item.getCompteur() > 0) {
+//                platItems.add(item);
+//            }
+//        }
+//
+//        buttonValiderCommande.setVisibility(platItems.size() > 0 ? View.VISIBLE : View.GONE);
+//        setupAdapter(true);
+//    }
+
+//    private void afficherResume() {
+//        textViewResume.setVisibility(View.VISIBLE);
+//        platItems.clear();
+//
+//        for (PlatItem item : platsCommandes) {
+//            int count = item.getCompteur();
+//            for (int i = 0; i < count; i++) {
+//                PlatItem copy = new PlatItem(
+//                        item.getNom(),
+//                        item.getPrix()
+//                );
+//                copy.setCommentaire(item.getCommentaire());
+//                platItems.add(copy);
+//            }
+//        }
+//
+//        buttonValiderCommande.setVisibility(platItems.size() > 0 ? View.VISIBLE : View.GONE);
+//        setupAdapter(true);
+//    }
+
     private void afficherResume() {
         textViewResume.setVisibility(View.VISIBLE);
         platItems.clear();
-
-        for (PlatItem item : platsCommandes) {
-            if (item.getCompteur() > 0) {
-                platItems.add(item);
-            }
-        }
-
+        platItems.addAll(platsCommandes); // on montre directement les commandes
         buttonValiderCommande.setVisibility(platItems.size() > 0 ? View.VISIBLE : View.GONE);
         setupAdapter(true);
     }
+
 
     private void showModaleSauce(PlatItem item, Runnable onFinish) {
         View dialogView = getLayoutInflater().inflate(R.layout.modale_sauce_commentaire, null);
@@ -389,4 +485,11 @@ public class Commande extends AppCompatActivity {
         return cuissons;
     }
 }
+
+
+
+
+
+
+
 

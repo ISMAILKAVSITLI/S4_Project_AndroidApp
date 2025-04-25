@@ -10,7 +10,7 @@
         android:id="@+id/dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sélectionner la sauce"
+        android:text="SÃ©lectionner la sauce"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="10dp" />
@@ -43,14 +43,6 @@
             android:text=""
             app:backgroundTint="@null" />
 
-        <Button
-            android:id="@+id/button3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/rounded_button_modale_sauce_commentaire"
-            android:text=""
-            app:backgroundTint="@null" />
     </LinearLayout>
 
     <LinearLayout
@@ -72,10 +64,9 @@
             app:backgroundTint="@null" />
 
         <Button
-            android:id="@+id/button5"
+            android:id="@+id/button3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginEnd="8dp"
             android:background="@drawable/rounded_button_modale_sauce_commentaire"
             android:text=""
@@ -83,7 +74,15 @@
 
     </LinearLayout>
 
-
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/rounded_button_modale_sauce_commentaire"
+        android:text=""
+        app:backgroundTint="@null" />
 
 
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.example.s4android;
 
+
 public class PlatItem {
     private String nom;
     private double prix;
@@ -72,5 +73,14 @@ public class PlatItem {
 
     public boolean getContientSauce() {
         return contientSauce;
+    }
+
+    public void reset() {
+        this.compteur = 0;
+        this.commentaire = "";
+    }
+
+    public void setCompteur(int compteur) {
+        this.compteur = compteur;
     }
 }
