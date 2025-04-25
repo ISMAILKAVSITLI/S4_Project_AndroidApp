@@ -10,7 +10,7 @@
         android:id="@+id/dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="SÃ©lectionner la sauce"
+        android:text="Sélectionner la sauce"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="10dp" />
