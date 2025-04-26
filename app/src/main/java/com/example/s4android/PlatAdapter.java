@@ -14,6 +14,9 @@ import java.util.List;
 import android.widget.Button;
 
 
+
+
+
 public class PlatAdapter extends RecyclerView.Adapter<PlatAdapter.MenuViewHolder> {
 
     private List<PlatItem> platItems;

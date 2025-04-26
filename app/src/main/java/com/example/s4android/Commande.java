@@ -18,6 +18,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Commande extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -218,6 +219,7 @@ public class Commande extends AppCompatActivity {
                 copyItem.setCompteur(1); // chaque ajout = 1 exemplaire
                 copyItem.setCommentaire(""); // on laisse vide ou on ajoute plus tard
 
+
                 platsCommandes.add(copyItem);
 
                 if (clickedItem.getContientSauce()) {
@@ -254,36 +256,76 @@ public class Commande extends AppCompatActivity {
                 }
             }
 
+//            @Override
+//            public void onCommentaireClick(PlatItem item) {
+//                if (item.getContientSauce()) {
+//                    showModaleSauce(item, () -> {
+//                        if (item.getContientViande()) {
+//                            showModaleViande(item);
+//                        }
+//                    });
+//                } else if (item.getContientViande()) {
+//                    showModaleViande(item);
+//                } else {
+//                    View dialogView = getLayoutInflater().inflate(R.layout.modale_commentaire, null);
+//                    EditText editCommentaire = dialogView.findViewById(R.id.edit_commentaire);
+//                    editCommentaire.setText(item.getCommentaire());
+//
+//                    AlertDialog dialog = new AlertDialog.Builder(Commande.this)
+//                            .setView(dialogView)
+//                            .create();
+//
+//                    Button btnOk = dialogView.findViewById(R.id.btn_ok);
+//                    btnOk.setOnClickListener(v -> {
+//                        String commentaire = editCommentaire.getText().toString().trim();
+//                        item.setCommentaire(commentaire);
+//                        Toast.makeText(Commande.this, "Commentaire enregistré", Toast.LENGTH_SHORT).show();
+//                        dialog.dismiss();
+//                    });
+//
+//                    dialog.show();
+//                }
+//            }
+
             @Override
             public void onCommentaireClick(PlatItem item) {
-                if (item.getContientSauce()) {
-                    showModaleSauce(item, () -> {
-                        if (item.getContientViande()) {
-                            showModaleViande(item);
+                View dialogView = getLayoutInflater().inflate(R.layout.modale_commentaire, null);
+                EditText editCommentaire = dialogView.findViewById(R.id.edit_commentaire);
+                editCommentaire.setText(item.getCommentaire());
+
+                AlertDialog dialog = new AlertDialog.Builder(Commande.this)
+                        .setView(dialogView)
+                        .create();
+
+                Button btnOk = dialogView.findViewById(R.id.btn_ok);
+
+
+                btnOk.setOnClickListener(v -> {
+                    String commentaireSaisi = editCommentaire.getText().toString().trim();
+
+                    for (PlatItem platCommande : platsCommandes) {
+                        if (platCommande.getNom().equals(item.getNom())) {
+                            String ancienCommentaire = platCommande.getCommentaire();
+
+                            // Fusionne l'ancien commentaire avec le nouveau
+                            String nouveauCommentaire = (ancienCommentaire == null ? "" : ancienCommentaire);
+
+                            if (!commentaireSaisi.isEmpty()) {
+                                nouveauCommentaire += (nouveauCommentaire.isEmpty() ? "" : " | ") + "Note: " + commentaireSaisi;
+                            }
+
+                            platCommande.setCommentaire(nouveauCommentaire);
                         }
-                    });
-                } else if (item.getContientViande()) {
-                    showModaleViande(item);
-                } else {
-                    View dialogView = getLayoutInflater().inflate(R.layout.modale_commentaire, null);
-                    EditText editCommentaire = dialogView.findViewById(R.id.edit_commentaire);
-                    editCommentaire.setText(item.getCommentaire());
+                    }
 
-                    AlertDialog dialog = new AlertDialog.Builder(Commande.this)
-                            .setView(dialogView)
-                            .create();
+                    Toast.makeText(Commande.this, "Commentaire enregistré", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                });
 
-                    Button btnOk = dialogView.findViewById(R.id.btn_ok);
-                    btnOk.setOnClickListener(v -> {
-                        String commentaire = editCommentaire.getText().toString().trim();
-                        item.setCommentaire(commentaire);
-                        Toast.makeText(Commande.this, "Commentaire enregistré", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                    });
 
-                    dialog.show();
-                }
+                dialog.show();
             }
+
         }, isResume);
 
         recyclerView.setAdapter(platAdapter);
@@ -380,6 +422,7 @@ public class Commande extends AppCompatActivity {
         platItems.addAll(platsCommandes); // on montre directement les commandes
         buttonValiderCommande.setVisibility(platItems.size() > 0 ? View.VISIBLE : View.GONE);
         setupAdapter(true);
+
     }
 
 
@@ -485,6 +528,13 @@ public class Commande extends AppCompatActivity {
         return cuissons;
     }
 }
+
+
+
+
+
+
+
 
 
 

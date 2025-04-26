@@ -24,6 +24,8 @@ import java.util.Locale;
 import javax.xml.transform.sax.SAXResult;
 
 
+
+
 public class Database {
 
     private static final String URL = "jdbc:mysql://10.0.2.2:3306/nouveaus4";
@@ -145,13 +147,62 @@ public class Database {
         }
     }
 
+    public void updateCommentaire(int platId, String commentaire) {
+        Connection conn = connectDB();
+        try {
+            String sql = "UPDATE plats SET commentaire = ? WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, commentaire);
+            stmt.setInt(2, platId);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
+    public String getCommentaire(int platId) {
+        String commentaire = "";
+        Connection conn = connectDB();
+        try {
+            String sql = "SELECT commentaire FROM plats WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, platId);
+            ResultSet rs = stmt.executeQuery();
 
+            if (rs.next()) {
+                commentaire = rs.getString("commentaire");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return commentaire;
+    }
 
 
 
 
 }
+
+
+
+
 
 
 

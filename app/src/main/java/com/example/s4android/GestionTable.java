@@ -19,6 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+
+
+
 public class GestionTable extends AppCompatActivity {
 
     private Button[] buttons;  // Tableau de boutons
@@ -354,6 +357,10 @@ public class GestionTable extends AppCompatActivity {
 
 
 }
+
+
+
+
 
 
 

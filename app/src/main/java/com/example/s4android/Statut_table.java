@@ -1,5 +1,6 @@
 package com.example.s4android;
 
+
 public class Statut_table {
     private int ID_STATUT_TABLE;
 
@@ -30,3 +31,4 @@ public class Statut_table {
         return "ID_STATUT_TABLE= " + ID_STATUT_TABLE + ", ID_SECTEUR =" +ID_SECTEUR + ", STATUT_TABLE =" + STATUT_TABLE;
     }
 }
+
