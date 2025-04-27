@@ -17,12 +17,17 @@ import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.os.Handler;
 
 
 
 
 public class GestionTable extends AppCompatActivity {
+
+    private Handler handler = new Handler();
+    private Runnable updateRunnable;
+    private final int UPDATE_INTERVAL = 5000; // 10 secondes
+
 
     private Button[] buttons;  // Tableau de boutons
 
@@ -108,47 +113,50 @@ public class GestionTable extends AppCompatActivity {
             }
         }
 
-        // Gérer la connexion à la base de données
-        Database db = new Database();
-        Connection conn = db.connectDB();
 
-        if (conn != null) {
-            Log.d("GestionTable", "Connexion réussie à la base de données.");
-            List<Statut_table> statuts = db.getStatuts(conn, secteur);
-            Log.d("GestionTable", "Statuts récupérés: " + statuts.size());
-
-            for (Statut_table s : statuts) {
-                Log.d("GestionTable", "Table ID: " + s.getId() + ", Statut: " + s.getNom());
-
-                // Transformation du statut numérique en chaîne de caractères
-                String statut = "";
-                switch (s.getNom()) {
-                    case "1":  // Si le statut est 'libre' (par exemple)
-                        statut = "libre";
-                        break;
-                    case "2":  // Si le statut est 'occupée'
-                        statut = "occupée";
-                        break;
-                    case "3":  // Si le statut est 'réservée'
-                        statut = "réservée";
-                        break;
-                    case "4":  // Si le statut est 'a nettoyer'
-                        statut = "a nettoyer";
-                        break;
-                    default:
-                        statut = "inconnu";  // Par sécurité, pour gérer un statut inconnu
-                        break;
-                }
-
-                // Mise à jour des boutons selon le statut
-                if (s.getId() >= (secteur - 1) * 5 + 1 && s.getId() <= secteur * 5) {
-                    setButtonColor(buttons[s.getId() - (secteur - 1) * 5 - 1], statut);  // -1 pour l'indexation dans le tableau
-                }
-            }
-        }
+//        // Gérer la connexion à la base de données
+//        Database db = new Database();
+//        Connection conn = db.connectDB();
+//
+//        if (conn != null) {
+//            Log.d("GestionTable", "Connexion réussie à la base de données.");
+//            List<Statut_table> statuts = db.getStatuts(conn, secteur);
+//            Log.d("GestionTable", "Statuts récupérés: " + statuts.size());
+//
+//            for (Statut_table s : statuts) {
+//                Log.d("GestionTable", "Table ID: " + s.getId() + ", Statut: " + s.getNom());
+//
+//                // Transformation du statut numérique en chaîne de caractères
+//                String statut = "";
+//                switch (s.getNom()) {
+//                    case "1":  // Si le statut est 'libre' (par exemple)
+//                        statut = "libre";
+//                        break;
+//                    case "2":  // Si le statut est 'occupée'
+//                        statut = "occupée";
+//                        break;
+//                    case "3":  // Si le statut est 'réservée'
+//                        statut = "réservée";
+//                        break;
+//                    case "4":  // Si le statut est 'a nettoyer'
+//                        statut = "a nettoyer";
+//                        break;
+//                    default:
+//                        statut = "inconnu";  // Par sécurité, pour gérer un statut inconnu
+//                        break;
+//                }
+//
+//                // Mise à jour des boutons selon le statut
+//                if (s.getId() >= (secteur - 1) * 5 + 1 && s.getId() <= secteur * 5) {
+//                    setButtonColor(buttons[s.getId() - (secteur - 1) * 5 - 1], statut);  // -1 pour l'indexation dans le tableau
+//                }
+//            }
+//        }
 
         // Listener pour le bouton retour
         btnAccueil.setOnClickListener(v -> finish());
+        startUpdating();
+
     }
 
     private void setButtonColor(Button btn, String statut) {
@@ -170,6 +178,55 @@ public class GestionTable extends AppCompatActivity {
                 break;
         }
     }
+
+
+    private void updateTables() {
+        Database db = new Database();
+        Connection conn = db.connectDB();
+
+        if (conn != null) {
+            int secteur = getIntent().getIntExtra("SECTEUR", -1);
+            List<Statut_table> statuts = db.getStatuts(conn, secteur);
+
+            for (Statut_table s : statuts) {
+                String statut = "";
+                switch (s.getNom()) {
+                    case "1":
+                        statut = "libre";
+                        break;
+                    case "2":
+                        statut = "occupée";
+                        break;
+                    case "3":
+                        statut = "réservée";
+                        break;
+                    case "4":
+                        statut = "a nettoyer";
+                        break;
+                    default:
+                        statut = "inconnu";
+                        break;
+                }
+
+                if (s.getId() >= (secteur - 1) * 5 + 1 && s.getId() <= secteur * 5) {
+                    setButtonColor(buttons[s.getId() - (secteur - 1) * 5 - 1], statut);
+                }
+            }
+        }
+    }
+
+
+    private void startUpdating() {
+        updateRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateTables(); // ta fonction qui recharge les statuts et couleurs
+                handler.postDelayed(this, UPDATE_INTERVAL); // relance toutes les 10 sec
+            }
+        };
+        handler.post(updateRunnable);
+    }
+
 
     private void ouvrirCommande(int idTable) {
         // Récupère la connexion à la base de données
@@ -357,6 +414,9 @@ public class GestionTable extends AppCompatActivity {
 
 
 }
+
+
+
 
 
 

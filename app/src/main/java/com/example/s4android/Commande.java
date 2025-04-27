@@ -18,7 +18,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Commande extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -91,6 +90,93 @@ public class Commande extends AppCompatActivity {
             chargerMenu("Boisson");
         });
 
+//        buttonValiderCommande.setOnClickListener(v -> {
+//            if (platsCommandes.isEmpty()) {
+//                Toast.makeText(this, "Aucun plat à envoyer", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//
+//            Database db = new Database();
+//            Connection conn = db.connectDB();
+//
+//            if (conn != null) {
+//                new Thread(() -> {
+//                    try {
+//                        Statement stmt = conn.createStatement();
+//                        int idCommande = -1;
+//
+//                        String requete_table = "SELECT ST.STATUT_TABLE FROM TABLES T " +
+//                                "JOIN STATUT_TABLE ST ON T.ID_STATUT_TABLE = ST.ID_STATUT_TABLE " +
+//                                "WHERE T.ID_TABLES = " + idTable;
+//                        ResultSet rsEtat = stmt.executeQuery(requete_table);
+//
+//                        boolean tableOccupee = false;
+//                        if (rsEtat.next()) {
+//                            String statut = rsEtat.getString("STATUT_TABLE");
+//                            tableOccupee = statut != null && statut.equalsIgnoreCase("occupée");
+//                        }
+//
+//                        if (tableOccupee) {
+//                            ResultSet rsCommande = stmt.executeQuery(
+//                                    "SELECT ID_COMMANDE FROM COMMANDE WHERE ID_TABLES = " + idTable +
+//                                            " AND COMMANDE_PAYEE = FALSE ORDER BY DATE_COMMANDE DESC LIMIT 1");
+//                            if (rsCommande.next()) {
+//                                idCommande = rsCommande.getInt("ID_COMMANDE");
+//                            } else {
+//                                throw new Exception("Aucune commande non payée trouvée.");
+//                            }
+//                        } else {
+//                            stmt.executeUpdate(
+//                                    "INSERT INTO COMMANDE (DATE_COMMANDE, COMMANDE_PAYEE, ID_TABLES) " +
+//                                            "VALUES (NOW(), FALSE, " + idTable + ")", Statement.RETURN_GENERATED_KEYS);
+//                            ResultSet rsCmd = stmt.getGeneratedKeys();
+//                            if (rsCmd.next()) {
+//                                idCommande = rsCmd.getInt(1);
+//                            } else {
+//                                throw new Exception("Erreur création commande.");
+//                            }
+//                            stmt.executeUpdate("UPDATE TABLES SET ID_STATUT_TABLE = " +
+//                                    "(SELECT ID_STATUT_TABLE FROM STATUT_TABLE WHERE STATUT_TABLE = 'occupée') " +
+//                                    "WHERE ID_TABLES = " + idTable);
+//                        }
+//
+//                        stmt.executeUpdate("INSERT INTO TICKET (TICKET_EN_COURS, ID_COMMANDE) VALUES (TRUE, " + idCommande + ")", Statement.RETURN_GENERATED_KEYS);
+//                        ResultSet rsTicket = stmt.getGeneratedKeys();
+//                        int idTicket = rsTicket.next() ? rsTicket.getInt(1) : -1;
+//
+//                        for (PlatItem item : platsCommandes) {
+//                            if (item.getCompteur() > 0) {
+//                                String commentaire = item.getCommentaire().replace("'", "''");
+//                                int idSauce = 1;
+//                                int idCuisson = 1;
+//
+//                                ResultSet rsPlat = stmt.executeQuery("SELECT ID_PLAT FROM PLAT WHERE NOM_PLAT = '" + item.getNom().replace("'", "''") + "'");
+//                                int idPlat = rsPlat.next() ? rsPlat.getInt("ID_PLAT") : -1;
+//
+//                                for (int i = 0; i < item.getCompteur(); i++) {
+//                                    stmt.executeUpdate("INSERT INTO ITEM (COMMENTAIRE, ID_SAUCE, ID_CUISSON_VIANDE, ID_PLAT, ID_TICKET) " +
+//                                            "VALUES ('" + commentaire + "', " + idSauce + ", " + idCuisson + ", " + idPlat + ", " + idTicket + ")");
+//                                }
+//                            }
+//                        }
+//
+//                        runOnUiThread(() -> {
+//                            Toast.makeText(this, "Commande enregistrée !", Toast.LENGTH_LONG).show();
+//                            platsCommandes.clear();
+//                            afficherResume();
+//                        });
+//
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                        runOnUiThread(() -> Toast.makeText(this, "Erreur : " + e.getMessage(), Toast.LENGTH_LONG).show());
+//                    }
+//                }).start();
+//            } else {
+//                Toast.makeText(this, "Connexion impossible", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
+
         buttonValiderCommande.setOnClickListener(v -> {
             if (platsCommandes.isEmpty()) {
                 Toast.makeText(this, "Aucun plat à envoyer", Toast.LENGTH_SHORT).show();
@@ -106,6 +192,7 @@ public class Commande extends AppCompatActivity {
                         Statement stmt = conn.createStatement();
                         int idCommande = -1;
 
+                        // Vérifie si la table est occupée
                         String requete_table = "SELECT ST.STATUT_TABLE FROM TABLES T " +
                                 "JOIN STATUT_TABLE ST ON T.ID_STATUT_TABLE = ST.ID_STATUT_TABLE " +
                                 "WHERE T.ID_TABLES = " + idTable;
@@ -141,28 +228,36 @@ public class Commande extends AppCompatActivity {
                                     "WHERE ID_TABLES = " + idTable);
                         }
 
-                        stmt.executeUpdate("INSERT INTO TICKET (TICKET_EN_COURS, ID_COMMANDE) VALUES (TRUE, " + idCommande + ")", Statement.RETURN_GENERATED_KEYS);
-                        ResultSet rsTicket = stmt.getGeneratedKeys();
-                        int idTicket = rsTicket.next() ? rsTicket.getInt(1) : -1;
+                        // ➡️ Séparer boissons et plats
+                        List<PlatItem> boissons = new ArrayList<>();
+                        List<PlatItem> autresPlats = new ArrayList<>();
 
                         for (PlatItem item : platsCommandes) {
-                            if (item.getCompteur() > 0) {
-                                String commentaire = item.getCommentaire().replace("'", "''");
-                                int idSauce = 1;
-                                int idCuisson = 1;
+                            if (isBoisson(item)) {
+                                boissons.add(item);
+                            } else {
+                                autresPlats.add(item);
+                            }
+                        }
 
-                                ResultSet rsPlat = stmt.executeQuery("SELECT ID_PLAT FROM PLAT WHERE NOM_PLAT = '" + item.getNom().replace("'", "''") + "'");
-                                int idPlat = rsPlat.next() ? rsPlat.getInt("ID_PLAT") : -1;
+                        // ➡️ Créer un ticket pour les plats
+                        if (!autresPlats.isEmpty()) {
+                            int idTicketPlats = createTicket(stmt, idCommande);
+                            for (PlatItem item : autresPlats) {
+                                insertItem(stmt, item, idTicketPlats);
+                            }
+                        }
 
-                                for (int i = 0; i < item.getCompteur(); i++) {
-                                    stmt.executeUpdate("INSERT INTO ITEM (COMMENTAIRE, ID_SAUCE, ID_CUISSON_VIANDE, ID_PLAT, ID_TICKET) " +
-                                            "VALUES ('" + commentaire + "', " + idSauce + ", " + idCuisson + ", " + idPlat + ", " + idTicket + ")");
-                                }
+                        // ➡️ Créer un ticket pour les boissons
+                        if (!boissons.isEmpty()) {
+                            int idTicketBoissons = createTicket(stmt, idCommande);
+                            for (PlatItem item : boissons) {
+                                insertItem(stmt, item, idTicketBoissons);
                             }
                         }
 
                         runOnUiThread(() -> {
-                            Toast.makeText(this, "Commande enregistrée !", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Commande enregistrée avec séparation boissons/plats !", Toast.LENGTH_LONG).show();
                             platsCommandes.clear();
                             afficherResume();
                         });
@@ -176,7 +271,58 @@ public class Commande extends AppCompatActivity {
                 Toast.makeText(this, "Connexion impossible", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
+
+
+    private boolean isBoisson(PlatItem item) {
+        boolean result = false;
+        Database db = new Database();
+        Connection conn = db.connectDB();
+
+        if (conn != null) {
+            try {
+                Statement stmt = conn.createStatement();
+                String query = "SELECT TYPE_PLAT FROM PLAT " +
+                        "JOIN TYPE_PLATS ON PLAT.ID_TYPE_PLATS = TYPE_PLATS.ID_TYPE_PLATS " +
+                        "WHERE NOM_PLAT = '" + item.getNom().replace("'", "''") + "'";
+                ResultSet rs = stmt.executeQuery(query);
+                if (rs.next()) {
+                    result = "Boisson".equalsIgnoreCase(rs.getString("TYPE_PLAT"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    private int createTicket(Statement stmt, int idCommande) throws Exception {
+        stmt.executeUpdate("INSERT INTO TICKET (TICKET_EN_COURS, ID_COMMANDE) VALUES (TRUE, " + idCommande + ")", Statement.RETURN_GENERATED_KEYS);
+        ResultSet rsTicket = stmt.getGeneratedKeys();
+        if (rsTicket.next()) {
+            return rsTicket.getInt(1);
+        } else {
+            throw new Exception("Erreur lors de la création du ticket");
+        }
+    }
+
+    private void insertItem(Statement stmt, PlatItem item, int idTicket) throws Exception {
+        if (item.getCompteur() > 0) {
+            String commentaire = item.getCommentaire().replace("'", "''");
+            int idSauce = 1;
+            int idCuisson = 1;
+
+            ResultSet rsPlat = stmt.executeQuery("SELECT ID_PLAT FROM PLAT WHERE NOM_PLAT = '" + item.getNom().replace("'", "''") + "'");
+            int idPlat = rsPlat.next() ? rsPlat.getInt("ID_PLAT") : -1;
+
+            for (int i = 0; i < item.getCompteur(); i++) {
+                stmt.executeUpdate("INSERT INTO ITEM (COMMENTAIRE, ID_SAUCE, ID_CUISSON_VIANDE, ID_PLAT, ID_TICKET) " +
+                        "VALUES ('" + commentaire + "', " + idSauce + ", " + idCuisson + ", " + idPlat + ", " + idTicket + ")");
+            }
+        }
+    }
+
 
     private void setupAdapter(boolean isResume) {
         this.isResumeMode = isResume;
@@ -528,6 +674,12 @@ public class Commande extends AppCompatActivity {
         return cuissons;
     }
 }
+
+
+
+
+
+
 
 
 
